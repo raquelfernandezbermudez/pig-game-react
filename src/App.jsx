@@ -15,23 +15,29 @@ function App() {
   const [diceNumber, setDiceNumber] = useState(0);
   // Estado para el ganador del juego
   const [winner, setWinner] = useState(null);
-    // Estado para indicar si el juego ha terminado
+  // Estado para indicar si el juego ha terminado
   const [gameOver, setGameOver] = useState(false);
   // Maneja la lógica cuando un jugador decide "hold" (mantener)
+  const [rollCount, setRollCount] = useState(0); // Contador de tiradas
+
   const handleHold = () => {
     // Crea una copia del array de puntuaciones para actualizarlo
     const newScore = [...score];
     // Suma la puntuación actual del jugador activo a su puntuación total
     newScore[activePlayer - 1] += current;
+
+    // Actualiza el estado del score
+    setScore(newScore);
+
     // Comprueba si el jugador ha ganado (alcanzó 100 puntos)
     if (newScore[activePlayer - 1] >= 100) {
-      setScore(newScore);
       setWinner(activePlayer);
       setGameOver(true);
       return; // No cambia de jugador si el juego ha terminado
     }
+
     // Cambia al otro jugador y resetea la puntuación actual
-    setActivePlayer(activePlayer === 1 ? 2 : 1);
+    setActivePlayer((prevActivePlayer) => (prevActivePlayer === 1 ? 2 : 1));
     setCurrent(0);
   };
 
@@ -43,25 +49,26 @@ function App() {
     setDiceNumber(0);
     setWinner(null);
     setGameOver(false);
+    setRollCount(0); // Reiniciar el contador de tiradas
   };
 
   // Lanza el dado generando un número aleatorio entre 1 y 6
   const handleRollDice = () => {
-    setDiceNumber(Math.floor(Math.random() * 6) + 1);
+    const newDiceNumber = Math.floor(Math.random() * 6) + 1;
+    setDiceNumber(newDiceNumber); // Actualiza el estado 'diceNumber' con el nuevo número generado
+    setRollCount((prev) => prev + 1); // Incrementa el contador de tiradas cada vez que se lanza el dado
   };
 
-  // anejar la lógica cuando se lanza el dado
+  // Manejar la lógica cuando se lanza el dado
   useEffect(() => {
+    //Si el juegador saca uno 1... cambia de jugador
     if (diceNumber === 1) {
-      // Si el jugador saca un 1, pierde el turno
       setActivePlayer((activePlayer) => (activePlayer === 1 ? 2 : 1));
-
       setCurrent(0);
     } else {
-      // Si no es 1, se suma el valor del dado a la puntuación actual
       setCurrent((current) => current + diceNumber);
     }
-  }, [diceNumber]); // Se ejecuta cada vez que cambia diceNumber
+  }, [rollCount]); // Ejecutar el efecto cada vez que cambia rollCount
 
   return (
     <main>
