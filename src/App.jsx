@@ -4,26 +4,6 @@ import { useState, useEffect } from "react";
 
 import Player from "./Player/Player";
 
-// 1. definir variables de estado usando useState (activePlayer, score, current, diceNumber)
-
-// 2. definir funciones para manejar los eventos de click (handleNewGame, handleRollDice, handleHold)
-
-// 3. pasar las variables de estado y las funciones a los componentes Player y Dice
-
-// 4. manejar los eventos de click en los botones de New game, Roll dice y Hold
-
-// 5. manejar el cambio de imagen de dado cuando se hace click en el botón rolldice
-
-// 5. manejar el cambio de jugador activo cuando se hace click en el botón Hold
-
-// 6. manejar el cambio de jugador activo cuando se obtiene un 1 al hacer click en el botón Roll dice
-
-// 7. manejar el cambio de jugador activo cuando se obtiene un 6 al hacer click en el botón Roll dice
-
-// 8. manejar el cambio de jugador activo cuando se obtiene un número diferente de 1 o 6 al hacer click en el botón Roll dice
-
-// 9. manejar el cambio de jugador activo cuando se hace click en el botón New game
-
 function App() {
   const [activePlayer, setActivePlayer] = useState(1);
 
@@ -32,6 +12,9 @@ function App() {
   const [current, setCurrent] = useState(0);
 
   const [diceNumber, setDiceNumber] = useState(0);
+
+  const [winner, setWinner] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
 
   const handleHold = () => {
     // para cambiar el score, se debe definir una nueva variable
@@ -44,21 +27,27 @@ function App() {
 
     newScore[activePlayer - 1] += current;
 
+    // Comprueba si el jugador ganó (alcanzó 100 puntos)
+    if (newScore[activePlayer - 1] >= 10) {
+      setScore(newScore);
+      setWinner(activePlayer);
+      setGameOver(true);
+      return; // No cambiar de jugador si el juego ha terminado
+    }
+
     setScore(newScore);
-
     setActivePlayer(activePlayer === 1 ? 2 : 1);
-
     setCurrent(0);
   };
 
+  // Actualiza handleNewGame para reiniciar el estado del ganador
   const handleNewGame = () => {
     setActivePlayer(1);
-
     setScore([0, 0]);
-
     setCurrent(0);
-
     setDiceNumber(0);
+    setWinner(null);
+    setGameOver(false);
   };
 
   const handleRollDice = () => {
@@ -82,13 +71,14 @@ function App() {
   }, [diceNumber]);
 
   return (
-
     <main>
       <Player
         name="Player 1"
         score={score[0]}
         current={activePlayer === 1 && current}
         isActive={activePlayer === 1}
+        isWinner={winner === 1}
+        index={0}
       />
 
       <Player
@@ -96,8 +86,9 @@ function App() {
         score={score[1]}
         current={activePlayer === 2 && current}
         isActive={activePlayer === 2}
+        isWinner={winner === 2}
+        index={1}
       />
-
       {diceNumber && (
         <img
           src={`dice-${diceNumber}.png`}
@@ -105,18 +96,30 @@ function App() {
           className="dice"
         />
       )}
-
       <button className="btn btn--new" onClick={handleNewGame}>
         🔄 New game
       </button>
-
-      <button className="btn btn--roll" onClick={handleRollDice}>
+      <button
+        className={`btn btn--roll ${gameOver ? "disabled" : ""}`}
+        onClick={handleRollDice}
+        disabled={gameOver}
+      >
         🎲 Roll dice
       </button>
 
-      <button className="btn btn--hold" onClick={handleHold}>
+      <button
+        className={`btn btn--hold ${gameOver ? "disabled" : ""}`}
+        onClick={handleHold}
+        disabled={gameOver}
+      >
         📥 Hold
       </button>
+
+      {winner && (
+        <div id="winMessage" style={{ display: "block" }}>
+          ¡El Jugador {winner} ha ganado!
+        </div>
+      )}
     </main>
   );
 }
