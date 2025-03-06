@@ -29,7 +29,7 @@ function App() {
     // Actualiza el estado del score
     setScore(newScore);
 
-    // Comprueba si el jugador ha ganado (alcanzó 100 puntos)
+    // Comprueba si el jugador ha ganado (alcanzó 10 puntos)
     if (newScore[activePlayer - 1] >= 100) {
       setWinner(activePlayer);
       setGameOver(true);
